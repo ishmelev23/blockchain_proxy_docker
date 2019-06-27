@@ -1,0 +1,79 @@
+version: "3"
+
+services:
+
+    db:
+      image: postgres:11-alpine
+      environment:
+        POSTGRES_DB: blockchain_proxy
+        POSTGRES_USER: root
+        POSTGRES_PASSWORD: changeme
+
+    api-app:
+      build:
+        context: ./
+        dockerfile: dockerfiles/App.Dockerfile
+        args:
+          - branch=develop
+      image: blockchain_proxy/app
+      command: 
+        - api
+        - --bind=0.0.0.0:5000 
+      volumes:
+        - ./configs/base_configs.py:/blockchain_proxy/base_configs.py
+        - ./configs/api_configs.py:/blockchain_proxy/settings_local.py
+        - ./logs/api.log:/blockchain_proxy/logs/common.log
+      cap_add:
+        - IPC_LOCK
+      stop_grace_period: 5m
+
+    api:
+      image: nginx
+      depends_on:
+        - api-app
+      ports:
+        - 8000:8000
+      volumes:
+        - ./configs/api-nginx.conf:/etc/nginx/nginx.conf:ro
+      cap_add:
+        - IPC_LOCK
+      stop_grace_period: 5m
+
+    publisher:
+      build:
+        context: ./
+        dockerfile: dockerfiles/App.Dockerfile
+        args:
+          - branch=develop
+      image: blockchain_proxy/app
+      command: 
+        - worker
+        - publisher
+      volumes:
+        - ./configs/base_configs.py:/blockchain_proxy/base_configs.py
+        - ./configs/publisher_configs.py:/blockchain_proxy/settings_local.py
+        - ./logs/publisher.log:/blockchain_proxy/logs/common.log
+      cap_add:
+        - IPC_LOCK
+      stop_grace_period: 5m
+
+    watcher:
+      build:
+        context: ./
+        dockerfile: dockerfiles/App.Dockerfile
+        args:
+          - branch=develop
+      image: blockchain_proxy/app
+      command: 
+        - worker
+        - watcher
+      volumes:
+        - ./configs/base_configs.py:/blockchain_proxy/base_configs.py
+        - ./configs/watcher_configs.py:/blockchain_proxy/settings_local.py
+        - ./logs/watcher.log:/blockchain_proxy/logs/common.log
+      cap_add:
+        - IPC_LOCK
+      stop_grace_period: 5m
+
+
+
