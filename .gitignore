@@ -1,2 +1,4 @@
+configs/api_configs.py
+configs/publisher_configs.py
+configs/watcher_configs.py
 logs
-configs
