@@ -6,8 +6,8 @@
 ```
 git clone https://github.com/ishmelev23/blockchain_proxy_docker
 cd blockchain_proxy_docker
-mkdir configs
-touch api_configs.py publisher_configs.py watcher_configs.py # and cofigure it
+mkdir logs && cd logs && touch api.log publisher.log watcher.log
+mkdir configs && cd configs && touch api_configs.py publisher_configs.py watcher_configs.py # and cofigure it
 ```
 
 
